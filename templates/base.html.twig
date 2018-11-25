@@ -3,9 +3,38 @@
     <head>
         <meta charset="UTF-8">
         <title>{% block title %}Welcome!{% endblock %}</title>
-        {% block stylesheets %}{% endblock %}
+
+        {% block stylesheets %}
+            <link href="https://fonts.googleapis.com/css?family=Niramit" rel="stylesheet">
+            <link href="{{ asset('css/main.css') }}" rel="stylesheet" />
+        {% endblock %}
     </head>
     <body>
+        <header>
+            <nav class="navbar">
+                <div class="container">
+                    <div class="left">
+                        <a href="{{ path('home') }}">://</a>
+                    </div>
+                    <div class="right">
+                        {% if is_granted('IS_AUTHENTICATED_FULLY') %}
+                            <a href="{{ path('user_profile') }}">{{ app.user.username }}</a>
+                            <a href="{{ path('app_logout') }}">X</a>
+                        {% else %}
+                            <a href="{{ path('app_login') }}">IN</a>
+                        {% endif %}
+                    </div>
+                    <div class="clearfix"></div>
+                </div>
+            </nav>
+        </header>
+        {% for label, messages in app.flashes %}
+            {% for message in messages %}
+                <div class="flash-{{ label }}">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        {% endfor %}
         {% block body %}{% endblock %}
         {% block javascripts %}{% endblock %}
     </body>
