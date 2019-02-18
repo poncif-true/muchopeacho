@@ -2,7 +2,7 @@
 
 namespace App\Security;
 
-use App\Entity\Peacher;
+use App\Entity\Peacher\Peacher;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -19,6 +19,10 @@ use Symfony\Component\Security\Csrf\CsrfTokenManagerInterface;
 use Symfony\Component\Security\Guard\Authenticator\AbstractFormLoginAuthenticator;
 use Symfony\Component\Security\Http\Util\TargetPathTrait;
 
+/**
+ * Class AppAuthenticator
+ * @package App\Security
+ */
 class AppAuthenticator extends AbstractFormLoginAuthenticator
 {
     use TargetPathTrait;
@@ -28,20 +32,39 @@ class AppAuthenticator extends AbstractFormLoginAuthenticator
     private $csrfTokenManager;
     private $passwordEncoder;
 
-    public function __construct(EntityManagerInterface $entityManager, RouterInterface $router, CsrfTokenManagerInterface $csrfTokenManager, UserPasswordEncoderInterface $passwordEncoder)
-    {
+    /**
+     * AppAuthenticator constructor.
+     * @param EntityManagerInterface $entityManager
+     * @param RouterInterface $router
+     * @param CsrfTokenManagerInterface $csrfTokenManager
+     * @param UserPasswordEncoderInterface $passwordEncoder
+     */
+    public function __construct(
+        EntityManagerInterface $entityManager,
+        RouterInterface $router,
+        CsrfTokenManagerInterface $csrfTokenManager,
+        UserPasswordEncoderInterface $passwordEncoder
+    ) {
         $this->entityManager = $entityManager;
         $this->router = $router;
         $this->csrfTokenManager = $csrfTokenManager;
         $this->passwordEncoder = $passwordEncoder;
     }
 
+    /**
+     * @param Request $request
+     * @return bool
+     */
     public function supports(Request $request)
     {
-        return 'app_login' === $request->attributes->get('_route')
+        return 'login' === $request->attributes->get('_route')
             && $request->isMethod('POST');
     }
 
+    /**
+     * @param Request $request
+     * @return array|mixed
+     */
     public function getCredentials(Request $request)
     {
         $credentials = [
@@ -57,6 +80,12 @@ class AppAuthenticator extends AbstractFormLoginAuthenticator
         return $credentials;
     }
 
+    /**
+     * @param mixed $credentials
+     * @param UserProviderInterface $userProvider
+     * @return Peacher|object|UserInterface|null
+     *
+     */
     public function getUser($credentials, UserProviderInterface $userProvider)
     {
         $token = new CsrfToken('authenticate', $credentials['csrf_token']);
@@ -81,17 +110,21 @@ class AppAuthenticator extends AbstractFormLoginAuthenticator
 
     public function onAuthenticationSuccess(Request $request, TokenInterface $token, $providerKey)
     {
-        // var_dump($token);
-        // exit();
-        // if ($targetPath = $this->getTargetPath($request->getSession(), $providerKey)) {
-        //     return new RedirectResponse($targetPath);
-        // }
+        $user = $token->getUser();
+
+        if (!$user->getDisplayUsername()) {
+            return new RedirectResponse($this->router->generate('user_select_username'));
+        }
+
+        if ($targetPath = $this->getTargetPath($request->getSession(), $providerKey)) {
+            return new RedirectResponse($targetPath);
+        }
 
         return new RedirectResponse($this->router->generate('home'));
     }
 
     protected function getLoginUrl()
     {
-        return $this->router->generate('app_login');
+        return $this->router->generate('login');
     }
 }

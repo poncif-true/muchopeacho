@@ -1,6 +1,6 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Sign up{% endblock %}
+{% block title %}Start a battle{% endblock %}
 
 {% block body %}
 <style>
@@ -9,16 +9,10 @@
 </style>
 
 <div class="example-wrapper">
-    <h1>Hello ! ✅</h1>
+    <h1>Hello {{ app.user.username }}!</h1>
 
-    <h2>
-        Come inside this comunity:
-        <small>it takes only 2...</small>
-    </h2>
-    <div class="">
-        {{ form_start(form) }}
-        {{ form_widget(form) }}
-        {{ form_end(form) }}
-    </div>
+    {{ dump(app.user) }}
+
+    
 </div>
 {% endblock %}

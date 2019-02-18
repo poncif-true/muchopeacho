@@ -1,6 +1,6 @@
 security:
     encoders:
-        App\Entity\Peacher:
+        App\Entity\Peacher\Peacher:
             algorithm: argon2i
 
     # https://symfony.com/doc/current/security.html#where-do-users-come-from-user-providers
@@ -8,7 +8,7 @@ security:
         # used to reload user from session & other features (e.g. switch_user)
         app_user_provider:
             entity:
-                class: App\Entity\Peacher
+                class: App\Entity\Peacher\Peacher
                 property: email
     firewalls:
         dev:
@@ -25,11 +25,13 @@ security:
             # http_basic: true
             # https://symfony.com/doc/current/security.html#a-configuring-how-your-users-will-authenticate
 
-            form_login: true
+            form_login:
+                login_path: login
+                check_path: login
             # https://symfony.com/doc/current/security/form_login_setup.html
 
             logout:
-                path: app_logout
+                path: logout
 
     # Easy way to control access for large sections of your site
     # Note: Only the *first* access control that matches will be used
@@ -40,3 +42,5 @@ security:
         - { path: ^/home, roles: IS_AUTHENTICATED_ANONYMOUSLY }
         # - { path: ^/admin, roles: ROLE_ADMIN }
         - { path: ^/profile, roles: IS_AUTHENTICATED_FULLY }
+        - { path: ^/user, roles: IS_AUTHENTICATED_FULLY }
+        - { path: ^/, roles: IS_AUTHENTICATED_FULLY }

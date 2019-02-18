@@ -50,6 +50,7 @@ table {
 /* GLOBALS */
 html, body {
     font-family: 'Niramit', sans-serif;
+    color: #141414;
 }
 .left {
     float: left;
@@ -99,4 +100,8 @@ header .navbar {
 .navbar .container > div > a {
     display: inline-block;
     margin-top: 5px;
+    text-transform: uppercase;
+}
+.navbar a + a {
+    margin-left: 14px;
 }

@@ -8,14 +8,14 @@ use Doctrine\Migrations\AbstractMigration;
 /**
  * Auto-generated Migration: Please modify to your needs!
  */
-final class Version20181101154414 extends AbstractMigration
+final class Version20181216150747 extends AbstractMigration
 {
     public function up(Schema $schema) : void
     {
         // this up() migration is auto-generated, please modify it to your needs
         $this->abortIf($this->connection->getDatabasePlatform()->getName() !== 'mysql', 'Migration can only be executed safely on \'mysql\'.');
 
-        $this->addSql('ALTER TABLE peacher ADD active TINYINT(1) NOT NULL');
+        $this->addSql('ALTER TABLE movie_based_username CHANGE insert_date insert_date DATETIME DEFAULT CURRENT_TIMESTAMP NOT NULL, CHANGE update_date update_date DATETIME DEFAULT CURRENT_TIMESTAMP NOT NULL');
     }
 
     public function down(Schema $schema) : void
@@ -23,6 +23,6 @@ final class Version20181101154414 extends AbstractMigration
         // this down() migration is auto-generated, please modify it to your needs
         $this->abortIf($this->connection->getDatabasePlatform()->getName() !== 'mysql', 'Migration can only be executed safely on \'mysql\'.');
 
-        $this->addSql('ALTER TABLE peacher DROP active');
+        $this->addSql('ALTER TABLE movie_based_username CHANGE insert_date insert_date DATETIME NOT NULL, CHANGE update_date update_date DATETIME NOT NULL');
     }
 }

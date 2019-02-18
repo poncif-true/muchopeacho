@@ -18,10 +18,10 @@
                     </div>
                     <div class="right">
                         {% if is_granted('IS_AUTHENTICATED_FULLY') %}
-                            <a href="{{ path('user_profile') }}">{{ app.user.username }}</a>
-                            <a href="{{ path('app_logout') }}">X</a>
+                            <a href="{{ path('user_profile') }}">{{ app.user.displayUsername }}</a>
+                            <a href="{{ path('logout') }}">X</a>
                         {% else %}
-                            <a href="{{ path('app_login') }}">IN</a>
+                            <a href="{{ path('login') }}">IN</a>
                         {% endif %}
                     </div>
                     <div class="clearfix"></div>
