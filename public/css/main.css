@@ -16,51 +16,69 @@ article, aside, canvas, details, embed,
 figure, figcaption, footer, header, hgroup,
 menu, nav, output, ruby, section, summary,
 time, mark, audio, video {
-	margin: 0;
-	padding: 0;
-	border: 0;
-	font-size: 100%;
-	font: inherit;
-	vertical-align: baseline;
+    margin: 0;
+    padding: 0;
+    border: 0;
+    font-size: 100%;
+    font: inherit;
+    vertical-align: baseline;
 }
+
 /* HTML5 display-role reset for older browsers */
 article, aside, details, figcaption, figure,
 footer, header, hgroup, menu, nav, section {
-	display: block;
+    display: block;
 }
+
 body {
-	line-height: 1;
+    line-height: 1;
 }
+
 ol, ul {
-	list-style: none;
+    list-style: none;
 }
+
 blockquote, q {
-	quotes: none;
+    quotes: none;
 }
+
 blockquote:before, blockquote:after,
 q:before, q:after {
-	content: '';
-	content: none;
+    content: '';
+    content: none;
 }
+
 table {
-	border-collapse: collapse;
-	border-spacing: 0;
+    border-collapse: collapse;
+    border-spacing: 0;
 }
 
 /* GLOBALS */
 html, body {
     font-family: 'Niramit', sans-serif;
     color: #141414;
+    background: #fafafa;
 }
+
 .left {
     float: left;
 }
+
 .right {
     float: right;
 }
+
 .clearfix {
     content: '';
     clear: both;
+}
+
+.uppercase {
+    text-transform: uppercase;
+}
+
+.tile-vertical {
+    margin-top: 20px;
 }
 
 /* CONTAINER */
@@ -71,18 +89,27 @@ html, body {
 }
 
 /* FLASH MESSAGES */
+.flash {
+    margin-bottom: 12px;
+    padding: 8px 12px;
+}
+
 .flash-notice {
     background: #0c80b1;
 }
+
 .flash-warning {
     background: #dbb427;
 }
+
 .flash-danger {
     background: #e26240;
 }
+
 .flash-success {
     background: #69de63;
 }
+
 /* HEADER */
 header .navbar {
     background: #141414;
@@ -90,18 +117,37 @@ header .navbar {
     display: block;
     min-height: 35px;
 }
+
 .navbar a {
     text-decoration: none;
     color: #dbdbdb;
 }
+
 .navbar a:hover {
     color: #fff;
 }
+
 .navbar .container > div > a {
     display: inline-block;
     margin-top: 5px;
     text-transform: uppercase;
 }
+
 .navbar a + a {
     margin-left: 14px;
+}
+
+
+/** AVATAR  */
+img.avatar {
+    display: inline-block;
+    max-width: 128px;
+    width: 128px;
+    border-radius: 64px;
+}
+
+img.avatar.smaller {
+    max-width: 1em;
+    width: 1em;
+    border-radius: 0.5em;
 }

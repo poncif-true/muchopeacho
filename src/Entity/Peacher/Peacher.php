@@ -76,6 +76,11 @@ class Peacher implements UserInterface
      */
     private $active;
 
+    /**
+     * @ORM\OneToOne(targetEntity="Avatar", mappedBy="peacher", cascade={"persist", "remove"})
+     */
+    private $avatar;
+
     public function __construct()
     {
         $this->movieSearches = new ArrayCollection();
@@ -242,6 +247,23 @@ class Peacher implements UserInterface
     public function setLastLogin(\DateTime $lastLogin): self
     {
         $this->lastLogin = $lastLogin;
+        return $this;
+    }
+
+    public function getAvatar(): ?Avatar
+    {
+        return $this->avatar;
+    }
+
+    public function setAvatar(Avatar $avatar): self
+    {
+        $this->avatar = $avatar;
+
+        // set the owning side of the relation if necessary
+        if ($this !== $avatar->getPeacher()) {
+            $avatar->setPeacher($this);
+        }
+
         return $this;
     }
 }

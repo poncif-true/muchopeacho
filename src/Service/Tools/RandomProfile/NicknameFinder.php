@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Service\NameFinder;
+namespace App\Service\Tools\RandomProfile;
 
 use App\Service\Tools\API\CurlCobain;
 
@@ -8,7 +8,7 @@ use App\Service\Tools\API\CurlCobain;
  * Class NicknameFinder
  * @package App\Service\NameFinder
  */
-class NicknameFinder implements NameFinderInterface
+class NicknameFinder implements FinderInterface
 {
     const NAME_SIZE_MIN = 5;
     const NAME_SIZE_MAX = 12;
@@ -36,9 +36,10 @@ class NicknameFinder implements NameFinderInterface
     }
 
     /**
-     * @return bool|string
+     * @param array|null $params
+     * @return bool|mixed|string
      */
-    public function findName()
+    public function find(array $params = null)
     {
         $this->curlCobain->init($this->getUrl());
         $this->curlCobain->setOption(CURLOPT_RETURNTRANSFER, true);

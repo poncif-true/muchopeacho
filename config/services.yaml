@@ -5,6 +5,7 @@
 # https://symfony.com/doc/current/best_practices/configuration.html#application-related-configuration
 parameters:
     locale: 'en'
+    avatar.asset_dir_path: '/var/www/html/muchopeacho/public/avatars/'
 
 services:
     # default configuration for services in *this* file
@@ -31,13 +32,17 @@ services:
     # add more service definitions when explicit configuration is needed
     # please note that last definitions always *replace* previous ones
     'app.nickname.finder':
-        class: App\Service\NameFinder\NicknameFinder
+        class: App\Service\Tools\RandomProfile\NicknameFinder
         # other arguments are autowired
         arguments:
             $host: '%env(UZBY_RANDOM_NAME_API)%'
 
     # aliases (when type hinted, call this specific service)
-    App\Service\NameFinder\NameFinderInterface: '@app.nickname.finder'
+    App\Service\Tools\RandomProfile\NicknameFinder: '@app.nickname.finder'
+
+    App\Service\Tools\RandomProfile\AvatarFinder:
+        arguments:
+            $host: '%env(AVATAAAR_GEN_API)%'
 
     # listeners
     App\EventListener\LoginListener:
