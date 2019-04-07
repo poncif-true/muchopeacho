@@ -9,10 +9,8 @@
 </style>
 
 <div class="example-wrapper">
-    <h1>Hello {{ app.user.username }}!</h1>
-
-    {{ dump(app.user) }}
-
+    <h1>Hello {{ app.user.displayUsername }}!</h1>
+    <h2>You may now want to start a new battle</h2>
     
 </div>
 {% endblock %}

@@ -16,3 +16,7 @@
 ###< symfony/web-server-bundle ###
 
 /.idea/
+
+### app avatars ###
+/public/avatars/*
+!/public/avatars/.gitkeep

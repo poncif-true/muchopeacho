@@ -3,6 +3,14 @@ namespace App\Traits;
 
 use Doctrine\ORM\Mapping as ORM;
 
+/**
+ * Trait DatabaseDatesTrait
+ *
+ * Provides date fields to manage database : insert and update date. Both are automatically filled with
+ * Doctrine ORM's PrePersist and PreUpdate methods.
+ *
+ * @package App\Traits
+ */
 trait DatabaseDatesTrait
 {
     /**
@@ -26,9 +34,11 @@ trait DatabaseDatesTrait
     /**
      * @ORM\PrePersist()
      */
-    public function setInsertDate()
+    public function setInsertDate(): self
     {
         $this->insertDate = new \DateTime();
+
+        return $this;
     }
 
     /**
@@ -40,11 +50,13 @@ trait DatabaseDatesTrait
     }
 
     /**
-     * @ORM\PrePersist()
      * @ORM\PreUpdate()
+     * @ORM\PrePersist()
      */
-    public function setUpdateDate()
+    public function setUpdateDate(): self
     {
         $this->updateDate = new \DateTime();
+
+        return $this;
     }
 }

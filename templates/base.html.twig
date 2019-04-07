@@ -18,7 +18,12 @@
                     </div>
                     <div class="right">
                         {% if is_granted('IS_AUTHENTICATED_FULLY') %}
-                            <a href="{{ path('user_profile') }}">{{ app.user.displayUsername }}</a>
+                            <a href="{{ path('user_profile') }}">
+                                {% if app.user.avatar is not empty %}
+                                    <img class="avatar smaller" src="{{ asset(app.user.avatar.filename |assetPath) }}" alt="">
+                                {% endif %}
+                                {{ app.user.displayUsername }}
+                            </a>
                             <a href="{{ path('logout') }}">X</a>
                         {% else %}
                             <a href="{{ path('login') }}">IN</a>
@@ -28,14 +33,18 @@
                 </div>
             </nav>
         </header>
-        {% for label, messages in app.flashes %}
-            {% for message in messages %}
-                <div class="flash-{{ label }}">
-                    {{ message }}
-                </div>
+        <main>
+            {% for label, messages in app.flashes %}
+                {% for message in messages %}
+                    <div class="container flash flash-{{ label }}">
+                        {{ message }}
+                    </div>
+                {% endfor %}
             {% endfor %}
-        {% endfor %}
-        {% block body %}{% endblock %}
-        {% block javascripts %}{% endblock %}
+            <div class="container">
+                {% block body %}{% endblock %}
+            </div>
+            {% block javascripts %}{% endblock %}
+        </main>
     </body>
 </html>

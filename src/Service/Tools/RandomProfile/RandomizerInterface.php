@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Service\Tools\Randomizer;
+namespace App\Service\Tools\RandomProfile;
 
 
 /**

@@ -1,9 +1,7 @@
 <?php
 
-namespace App\Service\Tools\Randomizer;
+namespace App\Service\Tools\RandomProfile;
 
-use App\Service\NameFinder\NameFinderInterface;
-use App\Service\NameFinder\NicknameFinder;
 
 /**
  * Class UsernameRandomizer
@@ -14,15 +12,15 @@ class UsernameRandomizer implements RandomizerInterface
     /**
      * @var NicknameFinder
      */
-    protected $nameFinder;
+    protected $nicknameFinder;
 
     /**
      * UsernameRandomizer constructor.
-     * @param NameFinderInterface $nameFinder
+     * @param NicknameFinder $finder
      */
-    public function __construct(NameFinderInterface $nameFinder)
+    public function __construct(NicknameFinder $finder)
     {
-        $this->nameFinder = $nameFinder;
+        $this->nicknameFinder = $finder;
     }
 
     /**
@@ -30,7 +28,7 @@ class UsernameRandomizer implements RandomizerInterface
      */
     public function generate(): string
     {
-        $username = $this->nameFinder->findName();
+        $username = $this->nicknameFinder->find();
 
         return $this->formatUsername($username);
     }
