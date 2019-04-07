@@ -2,22 +2,20 @@
 
 namespace App\Controller;
 
-use App\Entity\Peacher\Avatar;
 use App\Entity\Peacher\Peacher;
 use App\Exception\FileExtensionException;
-use App\Service\Tools\RandomProfile\AvatarFinder;
+use App\Form\UserForm;
+use App\Service\AvatarService;
 use App\Service\Tools\RandomProfile\RandomizerInterface;
 use App\Service\Tools\RandomProfile\UsernameRandomizer;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Form\Extension\Core\Type\FileType;
-use Symfony\Component\Form\Extension\Core\Type\SubmitType;
-use Symfony\Component\Form\Extension\Core\Type\TextType;
-use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Validator\Constraints\File;
 
 /**
  * @Route("/user", name="user_")
@@ -30,10 +28,10 @@ class UserController extends AbstractController
      * @Route("/profile", name="profile")
      *
      * @param Request $request
-     * @param AvatarFinder $avatarFinder
+     * @param AvatarService $avatarService
      * @return RedirectResponse|Response
      */
-    public function profile(Request $request, AvatarFinder $avatarFinder)
+    public function profile(Request $request, AvatarService $avatarService)
     {
         $em = $this->getDoctrine()->getManager();
         /** @var Peacher $peacher */
@@ -42,75 +40,45 @@ class UserController extends AbstractController
             return $this->redirectToRoute('user_select_username');
         }
 
-        // Find user's avatar
+        // Get user's avatar
         $avatar = $peacher->getAvatar();
 
-        if (!$avatar instanceof Avatar) {
-            $content = $avatarFinder->find(['username' => $peacher->getDisplayUsername()]);
-            $filename = $this->getParameter('avatar.asset_dir_path') . $peacher->getUsername() . '.png';
-            file_put_contents($filename, $content);
-
-            $avatar = new Avatar();
-            $avatar->setFilename($filename)->setPeacher($peacher);
-            $em->persist($avatar);
-            $em->flush();
-        }
-
         // Create update form
-        $userForm = $this->createFormBuilder($peacher)
-            ->add('displayUsername', TextType::class, [
-                'label' => 'The username that will be used for battles'
+        $userForm = $this->createForm(UserForm::class, $peacher);
+
+        // avatar form
+        $avatarForm = $this->createFormBuilder()
+            ->add('attachment', FileType::class, [
+                'label' => 'Import your own avatar',
+                'constraints' => [new File(['maxSize' => '1024k'])]
             ])
-            ->add('style', TextType::class, [
-                'label' => 'Choose a style that defines you (optional)',
-                'required' => false,
-            ])
-            ->add('save', SubmitType::class, array('label' => 'Update !'))
             ->getForm();
 
         // handle request
-
-        $avatarForm = $this->createFormBuilder()
-            ->add('attachment', FileType::class, [
-                'label' => 'Import your own avatar'
-            ])
-            ->getForm();
+        $userForm->handleRequest($request);
+        if ($userForm->isSubmitted() && $userForm->isValid()) {
+            $em->flush();
+        }
 
         // handle request
         $avatarForm->handleRequest($request);
         if ($avatarForm->isSubmitted() && $avatarForm->isValid()) {
             try {
-                $filename = $avatar->getFilename();
-                /** @var UploadedFile $file */
-                $file = $avatarForm['attachment']->getData();
-                $extension = $file->guessExtension();
-
-                if (!$extension || !in_array($extension, ['png', 'jpg', 'jpeg'])) {
-                    $this->addFlash('danger', 'Invalid file extension, please upload PNG or JPEG files');
-                    throw new FileExtensionException(FileExtensionException::EXTENSION_NOT_MATCHING);
-                }
-
-                if (!preg_match('/(' . $extension . ')$/', $filename)) {
-                    $filename = preg_replace('/(jpe*g)|(png)$/', $extension, $filename);
-                }
-                $file->move(dirname($filename), basename($filename));
-
-                $avatar->setFilename($filename);
-                $em->persist($avatar);
-                $em->flush();
+                $avatarService->saveUploadedFile($avatar, $avatarForm['attachment']->getData());
+            } catch (FileExtensionException $exception) {
+                $this->addFlash('danger', 'Invalid file extension, please upload PNG or JPEG files');
             } catch (\Exception $exception) {
-                if (!$this->get('session')->getFlashBag()->has('danger')) {
-                    $this->addFlash('danger', 'An error occured while uploading file');
-                }
+                $this->addFlash('danger', 'An error occured while uploading file');
             }
         }
 
-
-        return $this->render('user/profile.html.twig', [
-            'userForm' => $userForm->createView(),
+        $params = [
+            'userForm'   => $userForm->createView(),
             'avatarForm' => $avatarForm->createView(),
-            'avatar' => $avatar,
-        ]);
+            'avatar'     => $avatar,
+        ];
+
+        return $this->render('user/profile.html.twig', $params);
     }
 
     /**
@@ -141,23 +109,15 @@ class UserController extends AbstractController
         $peacher->setDisplayUsername($randomUsername);
 
         // Create update form
-        $form = $this->createFormBuilder($peacher)
-            ->add('displayUsername', TextType::class, [
-                'label' => 'If too lazy, here\'s a nickname that you can keep. Or choose yours.'
-            ])
-            ->add('style', TextType::class, [
-                'label' => 'Choose a style that defines you (optional)',
-                'required' => false,
-            ])
-            ->add('save', SubmitType::class, array('label' => 'Go !'))
-            ->getForm();
+        $form = $this->createForm(UserForm::class, $peacher);
 
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
             $em->flush();
+            // This will ask AvatarEventSubscriber to generate avatar
+            $request->attributes->set('must_generate_avatar', true);
             $this->addFlash('success', 'Thank you, and welcome ' . $peacher->getDisplayUsername());
-            $this->addFlash('info', 'You may now want to start a new battle');
             return $this->redirectToRoute('battle_start');
         }
 

@@ -6,9 +6,6 @@ namespace App\EventListener;
 use App\Entity\Peacher\Peacher;
 use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\EntityManagerInterface;
-use Symfony\Component\HttpFoundation\RedirectResponse;
-use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
-use Symfony\Component\Routing\Router;
 use Symfony\Component\Security\Http\Event\InteractiveLoginEvent;
 
 class LoginListener
@@ -29,7 +26,6 @@ class LoginListener
 
     /**
      * @param InteractiveLoginEvent $event
-     * @return RedirectResponse
      * @throws \Exception
      */
     public function onSecurityInteractiveLogin(InteractiveLoginEvent $event)

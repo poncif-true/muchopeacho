@@ -14,13 +14,14 @@
             <img class="avatar" src="{{ asset(avatar.filename | assetPath) }}" alt="{{ username }}'s avatar">
             {{ form_start(avatarForm) }}
             {{ form_widget(avatarForm) }}
-            <input type="submit" value="Import">
+            <input type="submit" value="Update">
             {{ form_end(avatarForm) }}
         </div>
         <div class="tile-vertical">
             <h4>Your public information</h4>
             {{ form_start(userForm) }}
             {{ form_widget(userForm) }}
+            <input type="submit" value="Update">
             {{ form_end(userForm) }}
         </div>
     </section>

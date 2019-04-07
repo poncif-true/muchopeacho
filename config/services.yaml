@@ -29,23 +29,24 @@ services:
         resource: '../src/Controller'
         tags: ['controller.service_arguments']
 
-    # add more service definitions when explicit configuration is needed
-    # please note that last definitions always *replace* previous ones
-    'app.nickname.finder':
-        class: App\Service\Tools\RandomProfile\NicknameFinder
-        # other arguments are autowired
+
+    App\Service\Tools\RandomProfile\NicknameFinder:
         arguments:
             $host: '%env(UZBY_RANDOM_NAME_API)%'
-
-    # aliases (when type hinted, call this specific service)
-    App\Service\Tools\RandomProfile\NicknameFinder: '@app.nickname.finder'
 
     App\Service\Tools\RandomProfile\AvatarFinder:
         arguments:
             $host: '%env(AVATAAAR_GEN_API)%'
 
+    App\Service\AvatarService:
+        arguments:
+
+            $dirPath: '%avatar.asset_dir_path%'
+
     # listeners
     App\EventListener\LoginListener:
         tags:
             - { name: kernel.event_listener, event: security.interactive_login }
+
+    # subscribers
 

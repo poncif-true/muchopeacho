@@ -4,10 +4,14 @@
 {% block body %}
     <div>
         <h1>It seems you're new here <small>take a moment to complete your profile</small></h1>
+        <div>
+            If too lazy, we've already set a nickname that you can keep. Or you can choose yours.
+        </div>
 
         <div class="">
             {{ form_start(form) }}
             {{ form_widget(form) }}
+            <input type="submit" value="GO !">
             {{ form_end(form) }}
         </div>
     </div>
