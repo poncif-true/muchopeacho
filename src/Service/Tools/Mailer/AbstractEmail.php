@@ -4,13 +4,18 @@
 namespace App\Service\Tools\Mailer;
 
 
-
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
+/**
+ * Class AbstractEmail
+ * @package App\Service\Tools\Mailer
+ */
 abstract class AbstractEmail
 {
-    protected static $requirements = [];
+    /** @var array */
     protected static $arguments = [];
+    /** @var array */
+    protected static $requirements = [];
 
     /**
      * @return array
@@ -20,6 +25,10 @@ abstract class AbstractEmail
         return static::$requirements;
     }
 
+    /**
+     * @param array $args
+     * @return array
+     */
     protected function resolveArguments(array $args = []): array
     {
         $resolver = new OptionsResolver();
@@ -36,5 +45,9 @@ abstract class AbstractEmail
         return $resolver->resolve($args);
     }
 
+    /**
+     * @param array $args
+     * @return Message
+     */
     abstract public function __invoke(array $args = []): Message;
 }

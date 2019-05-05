@@ -25,6 +25,17 @@ old_sound_rabbit_mq:
             # See https://www.rabbitmq.com/uri-spec.html on how to encode values.
 #            url: 'amqp://guest:password@localhost:5672/vhost?lazy=1&connection_timeout=6'
 #            url: '%env(RABBITMQ_URL)%'
+    producers:
+      notify_user:
+        connection:       default
+        exchange_options: {name: 'app.notify-user', type: direct}
+        service_alias:    notify_user_producer
+    consumers:
+      notify_user:
+        connection:       default
+        exchange_options: {name: 'app.notify-user', type: direct}
+        queue_options:    {name: 'app.notify-user'}
+        callback:         App\Consumer\NotifyUserConsumer
 #    producers:
 #        # use 'old_sound_rabbit_mq.task_producer' service to send data.
 #        task:
