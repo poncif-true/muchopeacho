@@ -4,8 +4,6 @@
 namespace App\Service\Tools\Mailer;
 
 
-use App\Exception\IncompleteMessageException;
-
 /**
  * Class Message
  * @package App\Service\Tools\Mailer
@@ -126,15 +124,19 @@ class Message
 
     /**
      * @return \Swift_Message
-     * @throws \Exception
+     * @throws IncompleteMessageException
      */
     public function prepareMessage(): \Swift_Message
     {
         if (!$this->isMessageReady()) {
             throw new IncompleteMessageException('Missing options: ' . implode(', ', $this->missingOptions));
         }
+        if (is_array($this->from) && count($this->from) === 1) {
+            $this->message->setFrom(key($this->from), reset($this->from));
+        } else {
+            $this->message->setFrom($this->from);
+        }
 
-        $this->message->setFrom(key($this->from), reset($this->from));
         $this->message->addTo($this->to);
         $this->message->setSubject($this->subject);
         $this->message->setBody($this->body);

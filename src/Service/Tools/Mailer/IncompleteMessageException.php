@@ -1,5 +1,7 @@
 <?php
-namespace App\Exception;
+
+namespace App\Service\Tools\Mailer;
+
 
 /**
  * Class IncompleteMessageException

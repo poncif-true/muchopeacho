@@ -16,26 +16,33 @@ class Mailer
     /** @var \Swift_Mailer $mailer */
     protected $mailer;
 
-    protected $message;
-
+    /** @var array $options */
     protected $options;
-    /**
-     * @var LoggerInterface $logger
-     */
+
+    /** @var LoggerInterface $logger */
     protected $logger;
 
 
+    /**
+     * Mailer constructor.
+     * @param LoggerInterface $logger
+     * @param array $options
+     */
     public function __construct(LoggerInterface $logger, array $options = [])
     {
         $resolver = new OptionsResolver();
         $this->configureOptions($resolver);
 
         $this->options = $resolver->resolve($options);
+        // TODO log in separate file
         $this->logger = $logger;
         $this->mailer = $this->getMailer();
     }
 
-    protected function getMailer()
+    /**
+     * @return \Swift_Mailer
+     */
+    protected function getMailer(): \Swift_Mailer
     {
         $transport = new \Swift_SmtpTransport($this->options['host'], $this->options['port'], 'ssl');
         $transport->setUsername($this->options['username'])
@@ -44,6 +51,9 @@ class Mailer
         return new \Swift_Mailer($transport);
     }
 
+    /**
+     * @param OptionsResolver $resolver
+     */
     public function configureOptions(OptionsResolver $resolver)
     {
         $resolver->setDefaults([
@@ -54,9 +64,12 @@ class Mailer
         ]);
     }
 
+    /**
+     * @param Message $message
+     * @return int The number of successful recipients. Can be 0 which indicates failure
+     */
     public function send(Message $message)
     {
-
         return $this->mailer->send($message->prepareMessage());
     }
 }
