@@ -26,6 +26,12 @@ class NotifyUserConsumer implements ConsumerInterface
     protected $logger;
 
     /**
+     * Stores the ids of messages, for which sending was already tried once
+     * @var array $tries
+     */
+    protected $tries = [];
+
+    /**
      * NotifyUserConsumer constructor.
      * @param Mailer $mailer
      * @param EmailGenerator $emailGenerator
@@ -63,8 +69,18 @@ class NotifyUserConsumer implements ConsumerInterface
             $this->logger->error('Unable to deliver email (message id ' . $body->id . '): ' . $exception->getMessage());
         }
 
+        unset($token);
+        unset($message);
+
         if (empty($isSendingSuccess)) {
-            return false;
+            if (!in_array($body->id, $this->tries)) {
+                $this->tries[] = $body->id;
+                return false;
+            } else {
+                $this->logger->error('message abondonned: ' . $body->id);
+                unset($this->tries[$body->id]);
+                return true;
+            }
         }
 
         return true;
