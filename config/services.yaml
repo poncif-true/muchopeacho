@@ -40,8 +40,11 @@ services:
 
     App\Service\AvatarService:
         arguments:
-
             $dirPath: '%avatar.asset_dir_path%'
+
+    App\Service\Security\SecurityService:
+        arguments:
+            $producer: '@old_sound_rabbit_mq.notify_user_producer'
 
     # listeners
     App\EventListener\LoginListener:

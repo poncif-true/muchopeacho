@@ -94,16 +94,16 @@ html, body {
     padding: 8px 12px;
 }
 
-.flash-notice {
-    background: #0c80b1;
+.flash-info {
+    background: #60a5b6;
 }
 
 .flash-warning {
-    background: #dbb427;
+    background: #ffc550;
 }
 
 .flash-danger {
-    background: #e26240;
+    background: #ee6249;
 }
 
 .flash-success {
