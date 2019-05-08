@@ -11,6 +11,9 @@ namespace App\Service\Tools\Mailer;
 class Message
 {
     /** @var string */
+    protected $name;
+
+    /** @var string */
     protected $subject;
     /** @var string */
     protected $body;
@@ -40,6 +43,24 @@ class Message
         $this->from = [getenv('NOTIFICATION_EMAIL_ADDRESS') => 'MuchoPeacho'];
         $this->message = new \Swift_Message();
         $this->subject = $subject;
+    }
+
+    /**
+     * @return string|null
+     */
+    public function getName(): ?string
+    {
+        return $this->name;
+    }
+
+    /**
+     * @param string $name
+     * @return Message
+     */
+    public function setName(string $name): Message
+    {
+        $this->name = $name;
+        return $this;
     }
 
     /**

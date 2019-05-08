@@ -56,7 +56,7 @@ class NotifyUserConsumer implements ConsumerInterface
 
         try {
             $token = $this->tokenService->generateConfirmationToken($email);
-            $this->logger->debug('Token generated with ID: ' . $token->getId());
+            $this->logger->info('Token generated with ID: ' . $token->getId());
             $message = $this->emailGenerator->getMessage('App\Email\SignUpConfirmation', ['token' => $token]);
             $isSendingSuccess = $this->mailer->send($message);
         } catch (\Exception $exception) {

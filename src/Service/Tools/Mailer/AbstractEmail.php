@@ -46,6 +46,18 @@ abstract class AbstractEmail
     }
 
     /**
+     * @param string|null $subject
+     * @return Message
+     */
+    protected function newMessage(string $subject = null): Message
+    {
+        $message = new Message($subject);
+        $message->setName(static::class);
+
+        return $message;
+    }
+
+    /**
      * @param array $args
      * @return Message
      */

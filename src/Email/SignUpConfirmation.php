@@ -41,7 +41,7 @@ class SignUpConfirmation extends AbstractEmail
         $body = 'Please click on link below to confirm your inscription: ' . "\n\r"
             . $router->generate('confirm_sign_up', ['tokenValue' => $token->getValue()], Router::ABSOLUTE_URL);
 
-        $message = new Message('Welcome to MuchoPeacho');
+        $message = $this->newMessage('Welcome to MuchoPeacho');
         $message->setTo($token->getUser()->getEmail())
             ->setBody($body);
 

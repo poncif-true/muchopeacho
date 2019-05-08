@@ -70,6 +70,15 @@ class Mailer
      */
     public function send(Message $message)
     {
-        return $this->mailer->send($message->prepareMessage());
+        $this->logger->debug(
+            __CLASS__ . ' sending ' . $message->getName() .
+            ' to ' . var_export($message->getTo(), true)
+        );
+        $recipients = $this->mailer->send($message->prepareMessage());
+        $this->logger->debug(
+            __CLASS__ . ' successfully sent ' . $message->getName() . ' to ' . $recipients . ' recipient'
+        );
+
+        return $recipients;
     }
 }
