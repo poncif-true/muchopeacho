@@ -2,9 +2,11 @@
 
 namespace App\Service\Security;
 
+use App\Entity\PasswordToken;
 use App\Entity\Peacher\Peacher;
-use App\Entity\Token;
+use App\Entity\SignUpConfirmationToken;
 use App\Exception\SecurityException;
+use App\Repository\Peacher\PeacherRepository;
 use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\EntityManagerInterface;
 use OldSound\RabbitMqBundle\RabbitMq\Producer;
@@ -16,6 +18,7 @@ use Symfony\Component\Security\Core\User\UserInterface;
 /**
  * Provides methods for authentication, registration, etc
  * Class SecurityService
+ *
  * @package App\Service\Security
  */
 class SecurityService
@@ -31,33 +34,44 @@ class SecurityService
     protected $passwordEncoder;
     /** @var EntityManager */
     protected $entityManager;
+    /** @var PeacherRepository */
+    protected $peacherRepository;
     /** @var Producer */
-    protected $producer;
+    protected $confirmSignUpProducer;
+    /** @var Producer */
+    protected $resetPasswordProducer;
     /** @var LoggerInterface $logger */
     protected $logger;
 
     /**
      * SecurityService constructor.
+     *
      * @param UserPasswordEncoderInterface $passwordEncoder
      * @param EntityManagerInterface $entityManager
-     * @param Producer $producer
+     * @param Producer $confirmSignUpProducer
+     * @param Producer $resetPasswordProducer
      * @param LoggerInterface $logger
      */
     public function __construct(
         UserPasswordEncoderInterface $passwordEncoder,
         EntityManagerInterface $entityManager,
-        Producer $producer,
+        Producer $confirmSignUpProducer,
+        Producer $resetPasswordProducer,
         LoggerInterface $logger
     ) {
         $this->passwordEncoder = $passwordEncoder;
         $this->entityManager = $entityManager;
-        $producer->setLogger($logger);
-        $this->producer = $producer;
+        $this->peacherRepository = $entityManager->getRepository(Peacher::class);
+        $confirmSignUpProducer->setLogger($logger);
+        $this->confirmSignUpProducer = $confirmSignUpProducer;
+        $resetPasswordProducer->setLogger($logger);
+        $this->resetPasswordProducer = $resetPasswordProducer;
         $this->logger = $logger;
     }
 
     /**
      * @param Peacher $peacher
+     *
      * @return Peacher
      * @throws \Exception
      */
@@ -73,6 +87,7 @@ class SecurityService
     /**
      *
      * @param Peacher $peacher
+     *
      * @return Peacher
      * @throws SecurityException
      * @throws \Exception
@@ -89,6 +104,7 @@ class SecurityService
 
     /**
      * Return a "unique" technical username
+     *
      * @return string
      */
     protected function getUniqueUsername()
@@ -97,7 +113,22 @@ class SecurityService
     }
 
     /**
+     * @param UserInterface $user
      * @param string $plainPassword
+     *
+     * @return string
+     * @throws SecurityException
+     */
+    protected function encodePassword(UserInterface $user, string $plainPassword): string
+    {
+        $this->checkPasswordPattern($plainPassword);
+
+        return $this->passwordEncoder->encodePassword($user, $plainPassword);
+    }
+
+    /**
+     * @param string $plainPassword
+     *
      * @throws SecurityException
      */
     protected function checkPasswordPattern(string $plainPassword)
@@ -114,53 +145,84 @@ class SecurityService
     }
 
     /**
-     * @param UserInterface $user
-     * @param string $plainPassword
-     * @return string
-     * @throws SecurityException
-     */
-    protected function encodePassword(UserInterface $user, string $plainPassword): string
-    {
-        $this->checkPasswordPattern($plainPassword);
-
-        return $this->passwordEncoder->encodePassword($user, $plainPassword);
-    }
-
-    /**
      * @param string $email
      */
     public function sendSignUpConfirmation(string $email)
     {
         $msg = [
-            'id' => uniqid('amqp_msg.notify_user.'),
+            'id'    => uniqid('amqp_msg.confirm_sign_up.'),
             'email' => $email,
         ];
-        $this->logger->info('sending a confirmation, message id: ' . $msg['id']);
-        /** notify_user_producer */
-        $this->producer->setContentType('application/json')->publish(json_encode($msg));
+        $this->logger->info('publishing for confirmation, message id: ' . $msg['id']);
+        /** confirm_sign_up */
+        $this->confirmSignUpProducer->setContentType('application/json')->publish(json_encode($msg));
     }
 
     /**
-     * @param Token $token
+     * Publish a AMQP message to send an email to user
+     *
+     * @param string $email The email of the user that wants to reset his password
+     *
+     * @throws \UnexpectedValueException If an active account cannot be found
+     */
+    public function sendResetPasswordEmail(string $email)
+    {
+        $peacher = $this->peacherRepository->findOneBy(['email' => $email]);
+
+        if (!$peacher || !$peacher->isActive()) {
+            throw new \UnexpectedValueException('Account not found, or it has been deactivated');
+        }
+
+        $msg = [
+            'id'    => uniqid('amqp_msg.reset_password.'),
+            'email' => $email,
+        ];
+        $this->logger->info('publishing for password renewal, message id: ' . $msg['id']);
+        /** reset_password */
+        $this->resetPasswordProducer->setContentType('application/json')->publish(json_encode($msg));
+    }
+
+    /**
+     * @param SignUpConfirmationToken $token
+     *
      * @throws \Doctrine\ORM\ORMException
      * @throws \Doctrine\ORM\OptimisticLockException
      * @throws \Exception
      * @throws \UnexpectedValueException
      */
-    public function confirmSignUp(Token $token)
+    public function confirmSignUp(SignUpConfirmationToken $token)
     {
-        // TODO child class ConfirmationToken that extends Token
-        if ($token->getType() !== Token::TYPE_SIGN_UP_CONFIRMATION) {
-            throw new \UnexpectedValueException('Confirmation token was expected');
-        }
         if ($token->isAcquitted()) {
             throw new \Exception('Already acquitted');
         }
-        if (new \DateTime() > $token->getExpirationDate()) {
+        if ($token->isExpired()) {
             throw new \Exception('Token has expired');
         }
         $peacher = $token->getUser();
         $peacher->setActive(true);
+        $token->setAcquitted(true);
+        $this->entityManager->flush();
+    }
+
+    /**
+     * @param PasswordToken $token
+     *
+     * @throws \Doctrine\ORM\ORMException
+     * @throws \Doctrine\ORM\OptimisticLockException
+     * @throws \Exception
+     * @throws \UnexpectedValueException
+     */
+    public function resetPassword(PasswordToken $token)
+    {
+        if ($token->isAcquitted()) {
+            throw new \Exception('Already acquitted');
+        }
+        if ($token->isExpired()) {
+            throw new \Exception('Token has expired');
+        }
+        $peacher = $token->getUser();
+        $password = $this->encodePassword($peacher, $peacher->getPlainPassword());
+        $peacher->setPassword($password);
         $token->setAcquitted(true);
         $this->entityManager->flush();
     }

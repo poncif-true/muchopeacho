@@ -4,7 +4,6 @@
 namespace App\Form;
 
 
-use App\Entity\Peacher\Peacher;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\EmailType;
 use Symfony\Component\Form\FormBuilderInterface;
@@ -22,7 +21,7 @@ class ConfirmEmailForm extends AbstractType
     public function configureOptions(OptionsResolver $resolver)
     {
         $resolver->setDefaults([
-            'data_class' => Peacher::class,
+            'label' => 'Please enter your email',
         ]);
     }
 
@@ -34,7 +33,8 @@ class ConfirmEmailForm extends AbstractType
     {
         $builder
             ->add('email', EmailType::class, [
-                'label' => 'Please check that your email is correct'
+//                'label' => $options['label'],
+                'required' => true,
             ]);
     }
 }
