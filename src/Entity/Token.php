@@ -9,46 +9,50 @@ use Doctrine\ORM\Mapping as ORM;
 /**
  * @ORM\Entity(repositoryClass="App\Repository\TokenRepository")
  * @ORM\HasLifecycleCallbacks()
+ *
+ * @ORM\InheritanceType("SINGLE_TABLE")
+ * @ORM\DiscriminatorColumn(name="type", type="integer")
+ * @ORM\DiscriminatorMap({1 = "SignUpConfirmationToken", 2 = "PasswordToken"})
  */
-class Token
+abstract class Token
 {
     use DatabaseDatesTrait;
 
     const TYPE_SIGN_UP_CONFIRMATION = 1;
     const TYPE_PWD_RENEWAL = 2;
+    
+    const DEFAULT_VALIDITY_TIME = 1; // In HOURS
 
     /**
      * @ORM\Id()
      * @ORM\GeneratedValue()
      * @ORM\Column(type="integer")
      */
-    private $id;
+    protected $id;
 
     /**
      * @ORM\Column(type="string", length=255)
      */
-    private $value;
+    protected $value;
 
     /**
      * @ORM\Column(type="datetime")
      */
-    private $expirationDate;
+    protected $expirationDate;
 
     /**
      * @ORM\ManyToOne(targetEntity="App\Entity\Peacher\Peacher")
-     * @ORM\JoinColumn(nullable=false)
+     * @ORM\JoinColumn(nullable=true, onDelete="SET NULL")
      */
-    private $user;
-
-    /**
-     * @ORM\Column(type="integer")
-     */
-    private $type;
+    protected $user;
 
     /**
      * @ORM\Column(type="boolean")
      */
-    private $acquitted;
+    protected $acquitted;
+
+    /** @var bool */
+    protected $expired;
 
 
     public function __construct()
@@ -60,7 +64,7 @@ class Token
     protected function getDefautExpirationDate()
     {
         $now = new \DateTime(); //current date/time
-        $now->add(new \DateInterval("PT1H"));
+        $now->add(new \DateInterval("PT" . static::DEFAULT_VALIDITY_TIME . "H"));
 
         return $now;
     }
@@ -106,18 +110,6 @@ class Token
         return $this;
     }
 
-    public function getType(): ?int
-    {
-        return $this->type;
-    }
-
-    public function setType(int $type): self
-    {
-        $this->type = $type;
-
-        return $this;
-    }
-
     public function isAcquitted(): ?bool
     {
         return $this->acquitted;
@@ -128,5 +120,18 @@ class Token
         $this->acquitted = $acquitted;
 
         return $this;
+    }
+
+    public function isExpired(): bool
+    {
+        return $this->expired;
+    }
+
+    /**
+     * @ORM\PostLoad()
+     */
+    public function checkExpired()
+    {
+        $this->expired = (new \DateTime() > $this->getExpirationDate());
     }
 }
