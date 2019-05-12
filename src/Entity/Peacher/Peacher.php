@@ -77,7 +77,7 @@ class Peacher implements UserInterface
     private $active;
 
     /**
-     * @ORM\OneToOne(targetEntity="Avatar", mappedBy="peacher", cascade={"persist", "remove"})
+     * @ORM\OneToOne(targetEntity="Avatar", mappedBy="peacher")
      */
     private $avatar;
 

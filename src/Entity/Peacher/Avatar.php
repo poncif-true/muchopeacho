@@ -26,7 +26,7 @@ class Avatar
     private $filename;
 
     /**
-     * @ORM\OneToOne(targetEntity="App\Entity\Peacher\Peacher", inversedBy="avatar", cascade={"persist", "remove"})
+     * @ORM\OneToOne(targetEntity="App\Entity\Peacher\Peacher", inversedBy="avatar")
      * @ORM\JoinColumn(nullable=false)
      */
     private $peacher;

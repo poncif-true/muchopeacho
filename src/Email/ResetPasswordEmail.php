@@ -4,6 +4,7 @@
 namespace App\Email;
 
 
+use App\Entity\PasswordToken;
 use App\Entity\Token;
 use App\Service\Tools\Mailer\AbstractEmail;
 use App\Service\Tools\Mailer\EmailGenerator;
@@ -12,10 +13,10 @@ use Symfony\Component\Routing\Router;
 use Symfony\Component\Routing\RouterInterface;
 
 /**
- * Class SignUpConfirmation
+ * Class ResetPassword
  * @package App\Email
  */
-class SignUpConfirmation extends AbstractEmail
+class ResetPasswordEmail extends AbstractEmail
 {
     /** @var array */
     protected static $requirements = [
@@ -23,7 +24,7 @@ class SignUpConfirmation extends AbstractEmail
     ];
     /** @var array  */
     protected static $arguments = [
-        'token' => Token::class,
+        'token' => PasswordToken::class,
     ];
 
     /**
@@ -38,10 +39,10 @@ class SignUpConfirmation extends AbstractEmail
         $router = $arguments['router'];
         $token = $arguments['token'];
 
-        $body = 'Please click on link below to confirm your inscription: ' . "\n\r"
-            . $router->generate('confirm_sign_up', ['tokenValue' => $token->getValue()], Router::ABSOLUTE_URL);
+        $body = 'Please click on link below to reset your password: ' . "\n\r"
+            . $router->generate('confirm_new_password', ['tokenValue' => $token->getValue()], Router::ABSOLUTE_URL);
 
-        $message = $this->newMessage('Welcome to MuchoPeacho');
+        $message = $this->newMessage('Reset your password');
         $message->setTo($token->getUser()->getEmail())
             ->setBody($body);
 

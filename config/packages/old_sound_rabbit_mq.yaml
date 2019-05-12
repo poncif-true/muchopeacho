@@ -26,16 +26,23 @@ old_sound_rabbit_mq:
 #            url: 'amqp://guest:password@localhost:5672/vhost?lazy=1&connection_timeout=6'
 #            url: '%env(RABBITMQ_URL)%'
     producers:
-      notify_user:
+      confirm_sign_up:
         connection:       default
-        exchange_options: {name: 'app.notify-user', type: direct}
-        service_alias:    notify_user_producer
+        exchange_options: {name: 'app.confirm-sign-up', type: direct}
+      reset_password:
+        connection:       default
+        exchange_options: {name: 'app.reset-password', type: direct}
     consumers:
-      notify_user:
+      confirm_sign_up:
         connection:       default
-        exchange_options: {name: 'app.notify-user', type: direct}
-        queue_options:    {name: 'app.notify-user'}
-        callback:         App\Consumer\NotifyUserConsumer
+        exchange_options: {name: 'app.confirm-sign-up', type: direct}
+        queue_options:    {name: 'app.confirm-sign-up'}
+        callback:         App\Consumer\SignUpConfirmationConsumer
+      reset_password:
+        connection:       default
+        exchange_options: {name: 'app.reset-password', type: direct}
+        queue_options:    {name: 'app.reset-password'}
+        callback:         App\Consumer\ResetPasswordConsumer
 #    producers:
 #        # use 'old_sound_rabbit_mq.task_producer' service to send data.
 #        task:

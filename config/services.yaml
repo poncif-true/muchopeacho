@@ -6,6 +6,8 @@
 parameters:
     locale: 'en'
     avatar.asset_dir_path: '/var/www/html/muchopeacho/public/avatars/'
+    router.request_context.host: '%env(APP_HOST)%'
+    router.request_context.context: 'https'
 
 services:
     # default configuration for services in *this* file
@@ -44,7 +46,8 @@ services:
 
     App\Service\Security\SecurityService:
         arguments:
-            $producer: '@old_sound_rabbit_mq.notify_user_producer'
+            $confirmSignUpProducer: '@old_sound_rabbit_mq.confirm_sign_up_producer'
+            $resetPasswordProducer: '@old_sound_rabbit_mq.reset_password_producer'
 
     # listeners
     App\EventListener\LoginListener:
