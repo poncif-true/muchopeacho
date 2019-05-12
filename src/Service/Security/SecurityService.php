@@ -154,7 +154,6 @@ class SecurityService
             'email' => $email,
         ];
         $this->logger->info('publishing for confirmation, message id: ' . $msg['id']);
-        /** confirm_sign_up */
         $this->confirmSignUpProducer->setContentType('application/json')->publish(json_encode($msg));
     }
 
@@ -178,7 +177,6 @@ class SecurityService
             'email' => $email,
         ];
         $this->logger->info('publishing for password renewal, message id: ' . $msg['id']);
-        /** reset_password */
         $this->resetPasswordProducer->setContentType('application/json')->publish(json_encode($msg));
     }
 

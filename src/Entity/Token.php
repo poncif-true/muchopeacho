@@ -21,8 +21,6 @@ abstract class Token
     const TYPE_SIGN_UP_CONFIRMATION = 1;
     const TYPE_PWD_RENEWAL = 2;
     
-    const DEFAULT_VALIDITY_TIME = 1; // In HOURS
-
     /**
      * @ORM\Id()
      * @ORM\GeneratedValue()
@@ -55,16 +53,25 @@ abstract class Token
     protected $expired;
 
 
+    /**
+     * Token constructor.
+     *
+     * @throws \Exception
+     */
     public function __construct()
     {
         $this->acquitted = false;
         $this->expirationDate = $this->getDefautExpirationDate();
     }
 
+    /**
+     * @return \DateTime
+     * @throws \Exception
+     */
     protected function getDefautExpirationDate()
     {
         $now = new \DateTime(); //current date/time
-        $now->add(new \DateInterval("PT" . static::DEFAULT_VALIDITY_TIME . "H"));
+        $now->add(new \DateInterval("PT1H"));
 
         return $now;
     }

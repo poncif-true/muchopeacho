@@ -9,5 +9,4 @@ use Doctrine\ORM\Mapping as ORM;
  */
 class PasswordToken extends Token
 {
-    // Override parent::DEFAULT_VALIDITY_TIME to change default validity time
 }

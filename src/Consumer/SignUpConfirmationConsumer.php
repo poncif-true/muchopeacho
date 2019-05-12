@@ -44,7 +44,6 @@ class SignUpConfirmationConsumer extends NotifyUserConsumer
      */
     protected function getMessage($body): Message
     {
-        var_dump($body);
         $email = $body->email;
         $token = $this->tokenService->generateToken($email, 'App\Entity\SignUpConfirmationToken');
         $this->logger->info('Token generated with ID: ' . $token->getId());
